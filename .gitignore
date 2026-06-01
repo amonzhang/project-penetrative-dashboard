@@ -1,0 +1,27 @@
+# Next.js Build and Dependencies
+dashboard/node_modules/
+dashboard/.next/
+dashboard/out/
+dashboard/build/
+dashboard/tsconfig.tsbuildinfo
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+
+# Logs and Caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Local PDFs and Images (Optional, keep if needed)
+# fixed_tiger_pattern.pdf
+# pony_fabric_pattern.pdf
+# tiger_pattern_final_layout.pdf
+# tiger_pattern_fixed.pdf
+# 实施方案—台州通服2026年交付穿透式管理赋能训战营0129.pdf
+# 穿透式管理 · 三行对齐进度条 + S 曲线 + 现金流（修复版）.pdf
+# 项目预算 : 实际进度 : 现金流 · 对齐可视化（纯 HTML ）.pdf
+# *.png

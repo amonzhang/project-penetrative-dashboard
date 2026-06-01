@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>穿透式管理_项目管理可视化方法.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E4%B8%AD%E7%9A%84%E7%A9%BF%E9%80%8F%E5%BC%8F%E7%AE%A1%E7%90%86%E4%BB%B7%E5%80%BC%E8%B5%84%E9%87%91%E4%B8%80%E4%BD%93%E5%8C%96%E7%9A%84%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%B3%95%E8%AE%BA%E4%B8%8E%E5%AE%9E%E7%8E%B0">项目管理中的穿透式管理：价值—资金一体化的可视化方法论与实现</h1>
+<p><strong>作者</strong>：——<br>
+<strong>版本</strong>：v1.0</p>
+<h2 id="%E6%91%98%E8%A6%81">摘要</h2>
+<p>在复杂工程项目中，传统做法往往将进度（甘特）、成本（费用报表）与现金流（收付表）分离呈现，造成认知割裂与沟通成本高。本文提出一种面向<strong>项目管理</strong>的“<strong>穿透式管理</strong>”方法：以<strong>三行对齐进度条</strong>作为锚点视图，在<strong>统一时间轴</strong>上结合<strong>EVM S 曲线（PV/EV/AC）<strong>与</strong>现金流曲线（收/付/净）</strong>，辅以<strong>时间滑块/动画</strong>的交互，使“计划价值—挣得价值—实际成本—现金流”在同一视域内穿透呈现。该方法兼顾新手、专业 PM 与管理层的认知差异，显著降低信息转换开销，形成“价值—资金”联动的决策闭环。</p>
+<p><strong>关键词</strong>：项目管理；穿透式管理；挣值管理（EVM）；S 曲线；现金流；可视化；BIM/数字孪生</p>
+<hr>
+<h2 id="1-%E8%83%8C%E6%99%AF%E4%B8%8E%E9%97%AE%E9%A2%98">1. 背景与问题</h2>
+<ul>
+<li><strong>信息分散</strong>：计划、产出、成本、收付分处不同报表，时相口径不一致。</li>
+<li><strong>认知负荷高</strong>：管理者需要在脑内完成“跨图对齐”和“口径转换”。</li>
+<li><strong>沟通效率低</strong>：不同经验层级对同一问题的解读差异大。</li>
+</ul>
+<p><strong>目标</strong>：用一个统一的可视化框架，把“价值（PV/EV/AC）”与“资金（In/Out/Net）”在<strong>同一时间轴</strong>上穿透展示，降低门槛、提升决策效率。</p>
+<hr>
+<h2 id="2-%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%8C%87%E6%A0%87%E7%AE%80%E6%98%8E%E8%A7%A3%E9%87%8A">2. 概念与指标（简明解释）</h2>
+<ul>
+<li><strong>PV（Planned Value，计划价值）</strong>：到某时点按计划应完成的工作价值。</li>
+<li><strong>EV（Earned Value，挣得价值）</strong>：实际已完成工作折算的价值。</li>
+<li><strong>AC（Actual Cost，实际成本）</strong>：实际发生的成本支出。</li>
+<li><strong>CPI（Cost Performance Index）= EV / AC</strong>：成本效率；&gt;1 表示省钱。</li>
+<li><strong>SPI（Schedule Performance Index）= EV / PV</strong>：进度效率；&lt;1 表示滞后。</li>
+<li><strong>现金流（Cash Flow）</strong>：
+<ul>
+<li><strong>收款（Inflow）</strong>、<strong>付款（Outflow）</strong>、<strong>净现金（Net）= 收款 − 付款</strong>；</li>
+<li><strong>累计净现金</strong>用于识别缺口峰值与发生时点（融资窗口）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-%E6%96%B9%E6%B3%95%E8%AE%BA%E6%A1%86%E6%9E%B6%E5%9B%9B%E5%B1%82%E7%BB%93%E6%9E%84">3. 方法论框架（四层结构）</h2>
+<p><strong>核心设计原则：统一时间轴 + 对齐锚点 + 分层呈现 + 可解释</strong></p>
+<ol>
+<li>
+<p><strong>锚点视图：三行对齐进度条</strong></p>
+<ul>
+<li>统一标尺（以计划收入=100%）</li>
+<li>三行：<strong>预算</strong>（收入→成本分项→利润）/ <strong>实际</strong>（收入→成本分项→利润）/ <strong>现金流</strong>（收款→付款分项→净现金）</li>
+<li><strong>左端对齐</strong>：材料/分包/其他与预算对应分项严密对齐 → 一眼看偏差所在</li>
+</ul>
+</li>
+<li>
+<p><strong>价值维度：EVM S 曲线（PV/EV/AC）</strong></p>
+<ul>
+<li>同轴三线：PV（计划）、EV（产出）、AC（成本）</li>
+<li>KPI：<strong>CPI、SPI</strong>；状态点读数 + 里程碑竖线</li>
+<li>支持 EAC/ETC 等简单预测（可选）</li>
+</ul>
+</li>
+<li>
+<p><strong>资金维度：现金流曲线（收/付/净）</strong></p>
+<ul>
+<li>同轴三线：累计收款、累计付款、累计净现金</li>
+<li>识别现金缺口区、峰值与发生时点</li>
+<li>与 S 曲线联读：<strong>效率好 ≠ 现金充裕</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>交互层：时间滑块 / 动画</strong></p>
+<ul>
+<li>曲线随时间“长出来”，降低理解成本</li>
+<li><strong>只看偏差</strong>（高亮 EV−PV、In−Out 区间）、<strong>新手/专家模式</strong>（分层信息密度）</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>通过“锚点 + 曲线 + 交互”的组合，把结构对齐、趋势判断与时相细节统一到一屏。</p>
+</blockquote>
+<hr>
+<h2 id="4-%E5%9B%BE%E5%BD%A2%E5%8C%96%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95%E6%AF%94%E8%BE%83%E6%8C%89%E5%AF%B9%E8%B1%A1%E5%88%86%E5%B1%82">4. 图形化实现方法比较（按对象分层）</h2>
+<table>
+<thead>
+<tr>
+<th>场景/对象</th>
+<th>主要视图</th>
+<th>交互</th>
+<th>数据需求</th>
+<th>适用工具/实现</th>
+<th>优点</th>
+<th>注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>新手/非 PM</strong></td>
+<td>三行对齐进度条（锚点）+ 简化单线曲线</td>
+<td>时间滑块、只看偏差开关、灯号（CPI/SPI/净现金）</td>
+<td>月度汇总即可</td>
+<td>纯 HTML/Canvas（零依赖）；Power BI 简化页</td>
+<td>直观、易懂、上手快</td>
+<td>数量少、信息折叠但可一键展开</td>
+</tr>
+<tr>
+<td><strong>专业 PM/计划工程师</strong></td>
+<td>完整 S 曲线（PV/EV/AC）+ 现金流三线</td>
+<td>里程碑标注、阈值带、状态点解读、导出 CSV</td>
+<td>月/周时相 + 分项（材料/分包/其他）</td>
+<td>Web 前端/BI；Python 脚本生成图形</td>
+<td>分析充分、可复盘与预测</td>
+<td>需口径一致与数据质量</td>
+</tr>
+<tr>
+<td><strong>管理层/业主</strong></td>
+<td>关键曲线 + 情景播放</td>
+<td>时间回放、情景切换（基线/当前/目标）</td>
+<td>汇总级数据 + KPI</td>
+<td>Power BI/前端；BIM/4D 联动（Synchro等）</td>
+<td>说服力强、便于决策</td>
+<td>动画点到即止，避免炫技</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>建议采用“<strong>同屏双模式</strong>”：默认新手视图，一键切换专家视图；同一数据源、不同信息密度。</p>
+</blockquote>
+<hr>
+<h2 id="5-%E6%A1%88%E4%BE%8B%E7%A4%BA%E6%84%8F%E5%9B%BE%E6%95%B0%E5%80%BC%E5%86%85%E5%B5%8C">5. 案例（示意图：数值内嵌）</h2>
+<blockquote>
+<p>注：以下三图为示意，均由脚本生成；<strong>数值已内嵌</strong>（单位：万元），无需单独表格。</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>图 1｜三行对齐进度条（锚点视图）</strong><br>
+<img src="slide2_anchor.png" alt="三行对齐进度条"></p>
+</li>
+<li>
+<p><strong>图 2｜EVM S 曲线（PV/EV/AC）</strong><br>
+<img src="slide3_evm.png" alt="EVM S 曲线"></p>
+</li>
+<li>
+<p><strong>图 3｜现金流曲线（收/付/净）</strong><br>
+<img src="slide4_cash.png" alt="现金流曲线"></p>
+</li>
+</ul>
+<p><strong>读图要点（状态月）</strong>：</p>
+<ul>
+<li>PV≈433、EV=420、AC=320 → <strong>CPI≈1.31（成本效率好）、SPI≈0.97（进度略滞后）</strong></li>
+<li>累计收款 300、累计付款 230、<strong>净现金 +70</strong> → 现金总体为正，但回款仍低于价值产出</li>
+</ul>
+<hr>
+<h2 id="6-%E8%90%BD%E5%9C%B0%E8%B7%AF%E5%BE%84%E6%9C%80%E5%B0%8F%E5%8F%AF%E8%A1%8C%E5%88%B0%E9%AB%98%E7%BA%A7%E5%BD%A2%E6%80%81">6. 落地路径（最小可行到高级形态）</h2>
+<ol>
+<li>
+<p><strong>最小可行（MVP）</strong></p>
+<ul>
+<li>数据：月度计划/实际/收付 CSV</li>
+<li>脚本：Python 计算 PV/EV/AC、CPI/SPI 与现金流曲线 → 生成 PNG/HTML</li>
+<li>页面：锚点条 + 两张曲线 + KPI 卡片（零依赖前端）</li>
+</ul>
+</li>
+<li>
+<p><strong>迭代增强</strong></p>
+<ul>
+<li>前端：加入时间滑块、偏差高亮、里程碑标注、情景切换</li>
+<li>BI：Power BI 仪表板，定时刷新</li>
+<li>过程：周/月复盘 → 指标解读 → 纠偏计划/EAC/资金安排</li>
+</ul>
+</li>
+<li>
+<p><strong>高级形态（BIM/4D/数字孪生）</strong></p>
+<ul>
+<li>曲线与模型联动：选中曲线段高亮构件/工区</li>
+<li>现金流热力：对分包/工区显示收付强度</li>
+<li>汇报：一分钟时间回放，直观呈现“时间—空间—资金”的穿透关系</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="7-%E8%AE%A8%E8%AE%BA%E4%B8%8E%E5%B1%80%E9%99%90">7. 讨论与局限</h2>
+<ul>
+<li><strong>EVM 与现金流口径差异</strong>：AC 是成本，会计口径；现金流受收付节奏与合同条款影响，不能混用。</li>
+<li><strong>数据质量</strong>：基线与实际若未按时相维护，曲线即失真。</li>
+<li><strong>动画节制</strong>：动画用于时序理解与情景切换，不宜过多影响读图效率。</li>
+<li><strong>组织配套</strong>：需明确口径、节拍（周/月）与责任人，保证数据进入节奏。</li>
+</ul>
+<hr>
+<h2 id="8-%E7%BB%93%E8%AE%BA">8. 结论</h2>
+<p>“<strong>三行对齐进度条 + S 曲线 + 现金流 + 时间滑块</strong>”为<strong>项目管理</strong>提供了一套“<strong>穿透式管理</strong>”的可视化方法：</p>
+<ul>
+<li>以<strong>对齐锚点</strong>降低认知门槛；</li>
+<li>以<strong>价值曲线与资金曲线</strong>构成联动闭环；</li>
+<li>以<strong>分层呈现与交互</strong>适配不同人群场景。<br>
+该方法具备明确的可落地性，可作为工程项目在进度—成本—现金流一体化管理的实用框架。</li>
+</ul>
+<hr>
+<h2 id="%E9%99%84%E5%BD%95-a%E5%8F%AF%E5%A4%8D%E7%8E%B0%E7%9A%84%E6%9C%80%E5%B0%8F-python-%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B">附录 A｜可复现的最小 Python 计算示例</h2>
+<blockquote>
+<p>说明：用于从“月度 PV/EV/AC、收/付”序列生成三张图（与本文示意一致）；可嵌入到 CI 或定时任务。</p>
+</blockquote>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np, matplotlib.pyplot <span class="hljs-keyword">as</span> plt
+
+<span class="hljs-comment"># —— 输入：月度累计（或当月值后做累计）</span>
+PV = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">40</span>, <span class="hljs-number">120</span>, <span class="hljs-number">220</span>, <span class="hljs-number">320</span>, <span class="hljs-number">433</span>, <span class="hljs-number">560</span>, <span class="hljs-number">690</span>, <span class="hljs-number">800</span>, <span class="hljs-number">900</span>, <span class="hljs-number">960</span>, <span class="hljs-number">1000</span>]) * <span class="hljs-number">1e4</span>
+EV = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">30</span>, <span class="hljs-number">90</span>, <span class="hljs-number">180</span>, <span class="hljs-number">300</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>, <span class="hljs-number">420</span>]) * <span class="hljs-number">1e4</span>
+AC = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">20</span>, <span class="hljs-number">60</span>, <span class="hljs-number">120</span>, <span class="hljs-number">220</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>, <span class="hljs-number">320</span>]) * <span class="hljs-number">1e4</span>
+
+COLL = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">20</span>, <span class="hljs-number">60</span>, <span class="hljs-number">100</span>, <span class="hljs-number">200</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>, <span class="hljs-number">300</span>]) * <span class="hljs-number">1e4</span>
+PAID = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">15</span>, <span class="hljs-number">45</span>, <span class="hljs-number">80</span>, <span class="hljs-number">160</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>, <span class="hljs-number">230</span>]) * <span class="hljs-number">1e4</span>
+NET  = COLL - PAID
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wan</span><span class="hljs-params">(x)</span>:</span> <span class="hljs-keyword">return</span> x/<span class="hljs-number">1e4</span>
+
+<span class="hljs-comment"># —— S 曲线</span>
+m = np.arange(<span class="hljs-number">1</span>,<span class="hljs-number">13</span>)
+CPI = EV/AC; SPI = EV/PV
+plt.figure(figsize=(<span class="hljs-number">9</span>,<span class="hljs-number">5</span>))
+plt.plot(m, wan(PV), label=<span class="hljs-string">'PV'</span>); plt.plot(m, wan(EV), label=<span class="hljs-string">'EV'</span>); plt.plot(m, wan(AC), label=<span class="hljs-string">'AC'</span>)
+plt.axhline(<span class="hljs-number">0</span>); plt.grid(<span class="hljs-literal">True</span>, ls=<span class="hljs-string">'--'</span>, lw=<span class="hljs-number">.5</span>); plt.legend(); plt.title(<span class="hljs-string">'EVM S曲线（单位：万元）'</span>)
+plt.savefig(<span class="hljs-string">'evm.png'</span>, dpi=<span class="hljs-number">150</span>)
+
+<span class="hljs-comment"># —— 现金流三线</span>
+plt.figure(figsize=(<span class="hljs-number">9</span>,<span class="hljs-number">5</span>))
+plt.plot(m, wan(COLL), label=<span class="hljs-string">'Collected'</span>); plt.plot(m, wan(PAID), label=<span class="hljs-string">'Paid'</span>); plt.plot(m, wan(NET), label=<span class="hljs-string">'NetCash'</span>)
+plt.grid(<span class="hljs-literal">True</span>, ls=<span class="hljs-string">'--'</span>, lw=<span class="hljs-number">.5</span>); plt.legend(); plt.title(<span class="hljs-string">'现金流曲线（单位：万元）'</span>)
+plt.savefig(<span class="hljs-string">'cash.png'</span>, dpi=<span class="hljs-number">150</span>)
+</div></code></pre>
+
+</body>
+</html>

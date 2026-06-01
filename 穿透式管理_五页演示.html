@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>穿透式管理：价值-资金一体化的可视化方法（≤5页）</title>
+<style>
+body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; background:#f7f7fb; color:#111; }
+.deck { max-width: 1180px; margin: 0 auto; padding: 24px; }
+.slide { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 1px 2px rgba(0,0,0,.05); padding:24px; margin:18px 0; }
+h1 { margin:0 0 8px; font-size:28px; }
+h2 { margin:0 0 12px; font-size:22px; }
+p, li { line-height:1.6; }
+.meta { color:#666; margin-bottom:6px; }
+.img-wrap { text-align:center; margin:10px 0; }
+.img-wrap img { max-width:100%; height:auto; border-radius:8px; border:1px solid #eee; }
+.cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.note { font-size:13px; color:#555; background:#fafafa; border:1px dashed #e5e7eb; border-radius:10px; padding:10px 12px; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<section class="slide">
+  <h1>穿透式管理：以“三行对齐进度条 + S 曲线 + 现金流”实现价值-资金一体化</h1>
+  <div class="meta">目标：用一个统一视图，穿透“计划价值（PV）—挣得价值（EV）—实际成本（AC）—现金流（In/Out/Net）”。</div>
+  <ul>
+    <li><strong>三行对齐进度条</strong>：预算 / 实际 / 现金流，分项左端对齐作锚点，对比更直观。</li>
+    <li><strong>EVM S 曲线</strong>：PV（Planned Value，计划价值）/ EV（Earned Value，挣得价值）/ AC（Actual Cost，实际成本）；CPI=EV/AC、SPI=EV/PV。</li>
+    <li><strong>现金流曲线</strong>：累计收款、累计付款、累计净现金，揭示资金压力。</li>
+    <li><strong>穿透式管理</strong>：用单一时间轴联动价值与资金，让问题从“看不见”变成“一屏看穿”。</li>
+  </ul>
+  <div class="note">说明：本示例的数值均已嵌入图形中（单位默认“万元”），无需单独表格。</div>
+</section>
+
+<section class="slide">
+  <h2>页 2｜锚点视图：三行对齐进度条</h2>
+  <div class="img-wrap">
+    <img src="slide2_anchor.png" alt="Anchor Bars">
+  </div>
+  <ul>
+    <li>同一标尺：以计划收入为 100% 基准；三行共享坐标。</li>
+    <li>结构对齐：材料/分包/其他/利润的左端与预算一致，便于识别偏差与现金流位置。</li>
+    <li>认知减负：新手无需理解公式即可定位问题区段。</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>页 3｜EVM S 曲线（价值进度）</h2>
+  <div class="img-wrap">
+    <img src="slide3_evm.png" alt="EVM S-curve">
+  </div>
+  <ul>
+    <li>三线同屏：PV/EV/AC 形成“价值-成本-计划”的对比框架。</li>
+    <li>绩效灯号：CPI=EV/AC、SPI=EV/PV；CPI&gt;1 成本效率好，SPI&lt;1 进度略滞后。</li>
+    <li>状态月标注：在关键时点读数，支持滚动复盘和趋势外推（EAC/ETC）。</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>页 4｜现金流曲线（收/付/净）</h2>
+  <div class="img-wrap">
+    <img src="slide4_cash.png" alt="Cashflow Curves">
+  </div>
+  <ul>
+    <li>三线同屏：累计收款、累计付款、累计净现金；负区间即潜在融资窗口。</li>
+    <li>与 S 曲线联动：EV 高但收款低 → 价值产出好但现金吃紧；反之亦然。</li>
+    <li>面向管理：月度/周度播放或时间滑块，支持“现金缺口预警”。</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>页 5｜管理价值与落地路径（穿透式管理）</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><strong>认知减负</strong>：锚点条形＋曲线合屏，减少跨表切换与口径转换。</li>
+        <li><strong>一体联动</strong>：价值（PV/EV/AC）与资金（In/Out/Net）共享时间轴与里程碑。</li>
+        <li><strong>分层呈现</strong>：新手看条形与灯号，专家看 S 曲线与预测带，领导看播放与结论。</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li><strong>最小落地</strong>：现有进度/财务导出 → 生成时相曲线与锚点条形（脚本化）。</li>
+        <li><strong>迭代增强</strong>：接入 Power BI 或 Web 前端；加入时间滑块与偏差高亮。</li>
+        <li><strong>高级形态</strong>：BIM/4D/数字孪生联动，空间-时间-资金三维穿透。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">备注：页面仅 5 张，图形数据与示例数值严格一致，图中已内嵌关键读数（单位：万元）。</div>
+</section>
+
+</div>
+</body>
+</html>

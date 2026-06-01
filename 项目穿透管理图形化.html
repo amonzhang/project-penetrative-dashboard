@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>穿透式项目预算 · 收入 / 成本 / 利润 穿透视图</title>
+<style>
+  :root{
+    --bg:#f6f8ff;
+    --panel:#ffffff;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --outline:#60a5fa;
+    --outline-shadow:rgba(96,165,250,.32);
+    --material:#fb7185;
+    --subcontract:#f43f5e;
+    --other:#e11d48;
+    --profit:#22c55e;
+    --loss:#ef4444;
+    --range:rgba(96,165,250,.18);
+    --range-stroke:rgba(96,165,250,.35);
+    --track-border:rgba(148,163,184,.28);
+    --track-shadow:0 18px 38px rgba(15,23,42,.08);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(140deg,#f1f5ff,#fff);color:var(--ink);padding:36px}
+  h1{font-size:24px;margin-bottom:8px;font-weight:600}
+  .sub{color:var(--muted);margin-bottom:28px;max-width:960px}
+  .board{background:var(--panel);border-radius:28px;box-shadow:var(--track-shadow);padding:32px 36px 40px;max-width:1100px;margin:auto}
+  .section{margin-bottom:36px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+  .kpi{border:1px solid var(--track-border);border-radius:16px;padding:12px 14px;background:linear-gradient(180deg,#fff,#f8fbff)}
+  .kpi .kpi-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .kpi .kpi-value{font-size:18px;font-weight:700;line-height:1.2}
+  .kpi .kpi-sub{font-size:12px;color:var(--muted);margin-top:4px}
+  .kpi .kpi-sub.good{color:#166534}
+  .kpi .kpi-sub.bad{color:#b91c1c}
+  .kpi .kpi-sub.neutral{color:var(--muted)}
+  .section h2{font-size:18px;margin-bottom:10px;color:var(--muted)}
+  .ruler{position:relative;height:36px;margin-bottom:14px}
+  .ruler::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:10px;border-radius:6px;background:#e2e8f0}
+  .tick{position:absolute;bottom:2px;width:1px;height:24px;background:#cbd5f5}
+  .tick-label{position:absolute;bottom:10px;font-size:12px;color:var(--muted);transform:translateX(-50%)}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;color:var(--muted);font-size:13px;justify-content:center}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .swatch{width:14px;height:9px;border-radius:4px;display:inline-block}
+  .swatch.outline{border:2px solid var(--outline);background:transparent}
+  .swatch.range{background:var(--range);border:1px solid var(--range-stroke)}
+
+  .row{display:flex;align-items:center;gap:16px;margin:20px 0}
+  .row-label{width:90px;text-align:right;color:var(--muted);font-size:15px}
+  .track{position:relative;flex:1;height:74px;border-radius:24px;background:var(--panel);border:1px solid var(--track-border);overflow:visible}
+  .track::before{content:"";position:absolute;inset:0;border-radius:24px;box-shadow:inset 0 1px 3px rgba(15,23,42,.08);}
+
+  .guide{position:absolute;top:12px;bottom:12px;width:1.4px;background:linear-gradient(180deg,rgba(148,163,184,0),rgba(148,163,184,.32),rgba(148,163,184,0));z-index:0}
+
+  .segment{position:absolute;top:18%;height:64%;border-radius:18px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 14px;text-align:center;overflow:hidden;z-index:2;color:#fff;font-weight:600;gap:4px;line-height:1.35}
+  .segment.small{display:none}
+  .segment.material{background:var(--material)}
+  .segment.subcontract{background:var(--subcontract)}
+  .segment.other{background:var(--other)}
+  .segment.profit{background:var(--profit);color:#064e3b}
+  .segment.loss{background:var(--loss);color:#fee2e2}
+  .segment.range{background:var(--range);border:1px solid var(--range-stroke);color:#0c4a6e;z-index:1}
+  .segment.range.inside{background:rgba(96,165,250,.22);border:1.5px dashed var(--outline);box-shadow:inset 0 0 0 1px rgba(96,165,250,.18);color:#1d4ed8;z-index:2;top:18%;height:64%;border-radius:18px}
+  .segment.blue{background:rgba(96,165,250,.16);border:3px solid var(--outline);border-radius:26px;top:8%;height:84%;color:#1d4ed8;padding:0 28px;font-weight:600;display:flex;gap:2px;z-index:3;box-shadow:0 0 0 3px var(--outline-shadow)}
+  .segment .line1{font-size:14px}
+  .segment .line2{font-size:12px;font-weight:500;opacity:.92}
+
+  .callout{position:absolute;top:50%;transform:translate(18px,-50%);display:flex;align-items:center;gap:12px;font-weight:600;pointer-events:none;z-index:5}
+  .callout .callout-line{position:relative;flex:none;width:0;height:2px}
+  .callout .callout-line::before{content:"";position:absolute;right:0;top:0;width:32px;height:2px;background:var(--outline);border-radius:2px}
+  .callout .callout-line::after{content:"";position:absolute;right:-4px;top:50%;width:8px;height:8px;border-radius:50%;background:var(--outline);transform:translateY(-50%)}
+  .callout .callout-bubble{background:#fff;border:1px solid var(--outline);border-radius:14px;padding:6px 12px;box-shadow:0 12px 22px rgba(96,165,250,.18);display:flex;flex-direction:column;gap:2px;color:#1d4ed8}
+  .callout .callout-bubble .line1{font-size:13px;font-weight:600}
+  .callout .callout-bubble .line2{font-size:12px;font-weight:500;opacity:.8}
+  .callout.range .callout-line::before,
+  .callout.range .callout-line::after{background:var(--range-stroke)}
+  .callout.range .callout-bubble{border-color:var(--range-stroke);box-shadow:0 12px 20px rgba(96,165,250,.14);color:#0c4a6e}
+  .callout.range .callout-bubble .line2{opacity:.7}
+
+  @media(max-width:960px){
+    .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .row{flex-direction:column;align-items:flex-start}
+    .row-label{width:auto;text-align:left}
+  }
+  @media(max-width:560px){
+    .kpi-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <h1>穿透式项目预算 · 收入 / 成本 / 利润 穿透视图</h1>
+  <div class="sub">六行对齐视图：前 3 行展示预算、实际、现金流的收入及收/付款情况；后 3 行拆解成本明细与利润（或净现金）。所有宽度均以“计划收入 = 100%”为统一标尺，分项左端锚定预算分项起点，辅助竖向参考线帮助快速比对。</div>
+
+  <div class="board">
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div class="section" id="section-income">
+      <h2>收入 / 收款</h2>
+      <div class="ruler" id="ruler"></div>
+      <div class="row" data-row="planned-revenue"><div class="row-label">预算收入</div><div class="track" id="track-plan-income"></div></div>
+      <div class="row" data-row="actual-revenue"><div class="row-label">实际收入</div><div class="track" id="track-actual-income"></div></div>
+      <div class="row" data-row="cash-receipt"><div class="row-label">现金收款</div><div class="track" id="track-cash-income"></div></div>
+    </div>
+
+    <div class="section" id="section-cost">
+      <h2>成本明细 / 利润</h2>
+      <div class="row" data-row="planned-cost"><div class="row-label">预算成本</div><div class="track" id="track-plan-cost"></div></div>
+      <div class="row" data-row="actual-cost"><div class="row-label">实际成本</div><div class="track" id="track-actual-cost"></div></div>
+      <div class="row" data-row="cash-payment"><div class="row-label">现金付款</div><div class="track" id="track-cash-cost"></div></div>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch outline"></i>收入 / 收款外框</span>
+      <span><i class="swatch range"></i>成本合计范围</span>
+      <span><i class="swatch" style="background:var(--profit)"></i>利润 / 净现金（正）</span>
+      <span><i class="swatch" style="background:var(--loss)"></i>亏损 / 净现金（负）</span>
+      <span><i class="swatch" style="background:var(--material)"></i>材料成本/付款</span>
+      <span><i class="swatch" style="background:var(--subcontract)"></i>分包成本/付款</span>
+      <span><i class="swatch" style="background:var(--other)"></i>其他成本/付款</span>
+    </div>
+  </div>
+
+<script>
+  const data = {
+    planned: {
+      revenue: 10000000,
+      cost: { material: 3500000, subcontract: 2000000, other: 1000000 },
+    },
+    actual: {
+      income: 4200000,
+      cost: { material: 1800000, subcontract: 1000000, other: 400000 },
+    },
+    cash: {
+      collected: 3000000,
+      payment: { material: 1200000, subcontract: 800000, other: 300000 },
+    },
+  };
+
+  const base = data.planned.revenue;
+  const plannedCost = data.planned.cost;
+  const plannedCostTotal = Object.values(plannedCost).reduce((a,b)=>a+b,0);
+  const plannedProfit = base - plannedCostTotal;
+  const anchors = {
+    material: 0,
+    subcontract: plannedCost.material,
+    other: plannedCost.material + plannedCost.subcontract,
+    profit: plannedCostTotal
+  };
+
+  const px = v => `${(v/base)*100}%`;
+  const fmt = n => n.toLocaleString('zh-CN',{style:'currency',currency:'CNY',maximumFractionDigits:0});
+  const pct = (v,t) => t>0 ? `${(v/t*100).toFixed(1)}%` : '--';
+  const deltaFmt = n => `${n>=0?'+':''}${fmt(n)}`;
+  const tone = (v,goodWhenPositive=true) => {
+    if(v === 0) return 'neutral';
+    return (v > 0) === goodWhenPositive ? 'good' : 'bad';
+  };
+
+  const addGuide = track => {
+    Object.values(anchors).forEach(val=>{
+      const line = document.createElement('div');
+      line.className = 'guide';
+      line.style.left = px(val);
+      track.appendChild(line);
+    });
+  };
+
+  const addSegment = (track,{left,width,cls,line1,line2,title,z=2,hideThreshold=0.04}) => {
+    if(width <= 0) return;
+    const seg = document.createElement('div');
+    seg.className = `segment ${cls}`;
+    seg.style.left = px(left);
+    seg.style.width = px(width);
+    seg.style.zIndex = z;
+    seg.title = title;
+    if(width/base < hideThreshold && cls!=='blue') seg.classList.add('small');
+    const showLabel = !seg.classList.contains('small') && (line1 || line2);
+    if(showLabel){
+      if(line1){ const l1 = document.createElement('div'); l1.className='line1'; l1.textContent=line1; seg.appendChild(l1); }
+      if(line2){ const l2=document.createElement('div'); l2.className='line2'; l2.textContent=line2; seg.appendChild(l2); }
+    }
+    track.appendChild(seg);
+  };
+
+  const addCallout = (track,{left,width,cls='range',line1,line2}) => {
+    if(width <= 0) return;
+    const callout = document.createElement('div');
+    callout.className = `callout ${cls}`;
+    callout.style.left = px(left + width);
+    const leader = document.createElement('span'); leader.className='callout-line'; callout.appendChild(leader);
+    const bubble = document.createElement('span'); bubble.className='callout-bubble';
+    if(line1){ const l1=document.createElement('span'); l1.className='line1'; l1.textContent=line1; bubble.appendChild(l1); }
+    if(line2){ const l2=document.createElement('span'); l2.className='line2'; l2.textContent=line2; bubble.appendChild(l2); }
+    callout.appendChild(bubble);
+    track.appendChild(callout);
+  };
+
+  const buildRuler = () => {
+    const ruler = document.getElementById('ruler');
+    [0,0.25,0.5,0.75,1].forEach(p=>{
+      const tick=document.createElement('div');tick.className='tick';tick.style.left=`${p*100}%`;ruler.appendChild(tick);
+      const label=document.createElement('div');label.className='tick-label';label.style.left=`${p*100}%`;label.textContent=`${(p*100).toFixed(0)}%`;ruler.appendChild(label);
+    });
+  };
+
+  buildRuler();
+
+  // 收入相关三行
+  const planIncomeTrack = document.getElementById('track-plan-income');
+  addGuide(planIncomeTrack);
+  addSegment(planIncomeTrack,{left:0,width:plannedCostTotal,cls:'range',line1:`预算成本合计 ${fmt(plannedCostTotal)}`,line2:`占计划收入${pct(plannedCostTotal,base)}`,title:`预算成本合计 ${fmt(plannedCostTotal)}`,z:1,hideThreshold:0});
+  addSegment(planIncomeTrack,{left:0,width:base,cls:'blue',line1:fmt(base),line2:'占计划收入100%',title:`计划收入 ${fmt(base)}`,z:3});
+
+  const actualIncomeTrack = document.getElementById('track-actual-income');
+  addGuide(actualIncomeTrack);
+  const actualCost = data.actual.cost;
+  const actualCostTotal = Object.values(actualCost).reduce((a,b)=>a+b,0);
+  const actualProfit = data.actual.income - actualCostTotal;
+  addSegment(actualIncomeTrack,{left:0,width:actualCostTotal,cls:'range inside',title:`实际成本合计 ${fmt(actualCostTotal)}`,z:4,hideThreshold:0});
+  addCallout(actualIncomeTrack,{left:0,width:actualCostTotal,cls:'range',line1:`实际成本合计 ${fmt(actualCostTotal)}`,line2:`占计划收入${pct(actualCostTotal,base)}`});
+  addSegment(actualIncomeTrack,{left:0,width:data.actual.income,cls:'blue',line1:fmt(data.actual.income),line2:`占计划收入${pct(data.actual.income,base)}`,title:`已发生收入 ${fmt(data.actual.income)}`,z:3});
+
+  const cashIncomeTrack = document.getElementById('track-cash-income');
+  addGuide(cashIncomeTrack);
+  const cashPay = data.cash.payment;
+  const cashPayTotal = Object.values(cashPay).reduce((a,b)=>a+b,0);
+  const cashNet = data.cash.collected - cashPayTotal;
+  addSegment(cashIncomeTrack,{left:0,width:cashPayTotal,cls:'range inside',title:`付款合计 ${fmt(cashPayTotal)}`,z:4,hideThreshold:0});
+  addCallout(cashIncomeTrack,{left:0,width:cashPayTotal,cls:'range',line1:`付款合计 ${fmt(cashPayTotal)}`,line2:`占计划收入${pct(cashPayTotal,base)}`});
+  addSegment(cashIncomeTrack,{left:0,width:data.cash.collected,cls:'blue',line1:fmt(data.cash.collected),line2:`占计划收入${pct(data.cash.collected,base)}`,title:`收款 ${fmt(data.cash.collected)}`,z:3});
+
+  // 顶部 KPI：快速查看达成和偏差
+  const kpiGrid = document.getElementById('kpi-grid');
+  [
+    {
+      label:'收入达成率',
+      value:pct(data.actual.income,base),
+      sub:`实际收入 ${fmt(data.actual.income)} / 计划收入 ${fmt(base)}`,
+      cls:tone(data.actual.income - base, true),
+    },
+    {
+      label:'成本偏差',
+      value:deltaFmt(actualCostTotal - plannedCostTotal),
+      sub:`实际 ${fmt(actualCostTotal)} vs 预算 ${fmt(plannedCostTotal)}`,
+      cls:tone(plannedCostTotal - actualCostTotal, true),
+    },
+    {
+      label:'利润偏差',
+      value:deltaFmt(actualProfit - plannedProfit),
+      sub:`实际利润 ${fmt(actualProfit)} / 预算利润 ${fmt(plannedProfit)}`,
+      cls:tone(actualProfit - plannedProfit, true),
+    },
+    {
+      label:'净现金',
+      value:fmt(cashNet),
+      sub:`收款 ${fmt(data.cash.collected)} - 付款 ${fmt(cashPayTotal)}`,
+      cls:tone(cashNet, true),
+    },
+  ].forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'kpi';
+    card.innerHTML = `
+      <div class="kpi-label">${item.label}</div>
+      <div class="kpi-value">${item.value}</div>
+      <div class="kpi-sub ${item.cls}">${item.sub}</div>
+    `;
+    kpiGrid.appendChild(card);
+  });
+
+  // 成本总览（预算、实际、付款）
+  const planCostTrack = document.getElementById('track-plan-cost');
+  addGuide(planCostTrack);
+  addSegment(planCostTrack,{left:anchors.material,width:plannedCost.material,cls:'material',line1:fmt(plannedCost.material),line2:`占计划收入${pct(plannedCost.material,base)}·占预算成本${pct(plannedCost.material,plannedCostTotal)}`,title:`预算材料成本 ${fmt(plannedCost.material)}`});
+  addSegment(planCostTrack,{left:anchors.subcontract,width:plannedCost.subcontract,cls:'subcontract',line1:fmt(plannedCost.subcontract),line2:`占计划收入${pct(plannedCost.subcontract,base)}·占预算成本${pct(plannedCost.subcontract,plannedCostTotal)}`,title:`预算分包成本 ${fmt(plannedCost.subcontract)}`});
+  addSegment(planCostTrack,{left:anchors.other,width:plannedCost.other,cls:'other',line1:fmt(plannedCost.other),line2:`占计划收入${pct(plannedCost.other,base)}·占预算成本${pct(plannedCost.other,plannedCostTotal)}`,title:`预算其他成本 ${fmt(plannedCost.other)}`});
+  addSegment(planCostTrack,{left: plannedProfit>=0?anchors.profit:anchors.profit+plannedProfit,width:Math.abs(plannedProfit),cls:plannedProfit>=0?'profit':'loss',line1:fmt(plannedProfit),line2:`占计划收入${pct(plannedProfit,base)}`,title:`计划利润 ${fmt(plannedProfit)}`,hideThreshold:0.03});
+
+  const actualCostTrack = document.getElementById('track-actual-cost');
+  addGuide(actualCostTrack);
+  addSegment(actualCostTrack,{left:anchors.material,width:actualCost.material,cls:'material',line1:fmt(actualCost.material),line2:`占预算材料${pct(actualCost.material,plannedCost.material)}·占实际成本${pct(actualCost.material,actualCostTotal)}`,title:`实际材料成本 ${fmt(actualCost.material)}`});
+  addSegment(actualCostTrack,{left:anchors.subcontract,width:actualCost.subcontract,cls:'subcontract',line1:fmt(actualCost.subcontract),line2:`占预算分包${pct(actualCost.subcontract,plannedCost.subcontract)}·占实际成本${pct(actualCost.subcontract,actualCostTotal)}`,title:`实际分包成本 ${fmt(actualCost.subcontract)}`});
+  addSegment(actualCostTrack,{left:anchors.other,width:actualCost.other,cls:'other',line1:fmt(actualCost.other),line2:`占预算其他${pct(actualCost.other,plannedCost.other)}·占实际成本${pct(actualCost.other,actualCostTotal)}`,title:`实际其他成本 ${fmt(actualCost.other)}`});
+  addSegment(actualCostTrack,{left: actualProfit>=0?anchors.profit:anchors.profit+actualProfit,width:Math.abs(actualProfit),cls:actualProfit>=0?'profit':'loss',line1:fmt(actualProfit),line2:`占计划收入${pct(actualProfit,base)}`,title:`实际利润 ${fmt(actualProfit)}`,hideThreshold:0.03});
+
+  const cashCostTrack = document.getElementById('track-cash-cost');
+  addGuide(cashCostTrack);
+  addSegment(cashCostTrack,{left:anchors.material,width:cashPay.material,cls:'material',line1:fmt(cashPay.material),line2:`占预算材料${pct(cashPay.material,plannedCost.material)}·占付款${pct(cashPay.material,cashPayTotal)}`,title:`材料付款 ${fmt(cashPay.material)}`});
+  addSegment(cashCostTrack,{left:anchors.subcontract,width:cashPay.subcontract,cls:'subcontract',line1:fmt(cashPay.subcontract),line2:`占预算分包${pct(cashPay.subcontract,plannedCost.subcontract)}·占付款${pct(cashPay.subcontract,cashPayTotal)}`,title:`分包付款 ${fmt(cashPay.subcontract)}`});
+  addSegment(cashCostTrack,{left:anchors.other,width:cashPay.other,cls:'other',line1:fmt(cashPay.other),line2:`占预算其他${pct(cashPay.other,plannedCost.other)}·占付款${pct(cashPay.other,cashPayTotal)}`,title:`其他付款 ${fmt(cashPay.other)}`});
+  addSegment(cashCostTrack,{left: cashNet>=0?anchors.profit:anchors.profit+cashNet,width:Math.abs(cashNet),cls:cashNet>=0?'profit':'loss',line1:fmt(cashNet),line2:`占计划收入${pct(cashNet,base)}`,title:`净现金 ${fmt(cashNet)}`,hideThreshold:0.03});
+</script>
+</body>
+</html>
