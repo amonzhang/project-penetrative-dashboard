@@ -172,7 +172,7 @@ export function VarianceTag({
   );
 }
 
-// 6. RowLabel (行标签，左侧名称 + 实际/预算值数值)
+// 6. RowLabel (行标签，左侧名称 + 实际/预算值数值，默认 w-72 宽度)
 export function RowLabel({
   title,
   actual,
@@ -183,6 +183,8 @@ export function RowLabel({
   isExpanded = false,
   hasChildren = false,
   colorIndicator,
+  className = 'w-72',
+  plClass = 'pl-2',
 }: {
   title: string;
   actual: number;
@@ -193,9 +195,13 @@ export function RowLabel({
   isExpanded?: boolean;
   hasChildren?: boolean;
   colorIndicator?: string;
+  className?: string;
+  plClass?: string;
 }) {
   return (
-    <div className="w-48 flex-shrink-0 flex items-center justify-between pr-2 select-none">
+    <div
+      className={`${className} flex-shrink-0 flex items-center justify-between pr-2 select-none relative ${plClass}`}
+    >
       <div className="flex items-center gap-1.5 min-w-0">
         {hasChildren ? (
           <button
@@ -238,16 +244,21 @@ export function RowLabel({
   );
 }
 
-// 7. ExpandConnector (展开连接树状细线)
+// 7. ExpandConnector (展开连接树状细线，支持指定绝对 left 位置)
 export function ExpandConnector({
   isLast = false,
   color = '#cbd5e1',
+  left = 16,
 }: {
   isLast?: boolean;
   color?: string;
+  left?: number;
 }) {
   return (
-    <div className="absolute left-[-16px] top-0 bottom-0 w-4 pointer-events-none select-none">
+    <div
+      className="absolute top-0 bottom-0 w-4 pointer-events-none select-none"
+      style={{ left: `${left - 8}px` }}
+    >
       {/* 垂直主干 */}
       <div
         className="absolute left-1/2 top-0 w-[1px]"
@@ -265,7 +276,7 @@ export function ExpandConnector({
       />
       {/* 分支末梢圆点 */}
       <div
-        className="absolute left-[calc(1/2+8px)] top-[calc(50%-1.5px)] w-[3px] h-[3px] rounded-full"
+        className="absolute left-[calc(50%+8px)] top-[calc(50%-1.5px)] w-[3px] h-[3px] rounded-full"
         style={{
           backgroundColor: color,
         }}

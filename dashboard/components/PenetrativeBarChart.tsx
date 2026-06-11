@@ -244,9 +244,9 @@ export default function PenetrativeBarChart({
           </div>
         </div>
 
-        {/* Unified Ruler Scale Axis */}
+        {/* Unified Ruler Scale Axis (aligned exactly with start of progress bars) */}
         <div className="px-5 pt-4 pb-2 border-b border-slate-100 bg-slate-50/[0.1]">
-          <div className="relative h-6 ml-48">
+          <div className="relative h-6" style={{ marginLeft: '304px' }}>
             {RULER_POINTS.map((pt, i) => (
               <div
                 key={i}
@@ -272,6 +272,7 @@ export default function PenetrativeBarChart({
               const isHovered = hoveredRowKey === rowKey;
               return (
                 <div className="space-y-1">
+                  {/* Parent Row */}
                   <div 
                     className={`flex items-center min-h-[44px] gap-4 p-1 rounded-xl transition-all duration-300 ${isHovered ? 'bg-slate-50' : ''}`}
                     onMouseEnter={() => setHoveredRowKey(rowKey)}
@@ -286,6 +287,8 @@ export default function PenetrativeBarChart({
                       isExpanded={expanded.has(rowKey)}
                       onClickToggle={() => toggle(rowKey)}
                       colorIndicator="#2563eb"
+                      className="w-72"
+                      plClass="pl-2"
                     />
 
                     {/* Progress Bar Container */}
@@ -320,7 +323,7 @@ export default function PenetrativeBarChart({
                   {expanded.has(rowKey) && (() => {
                     let cum = 0;
                     return (
-                      <div className="ml-6 pl-6 py-2 space-y-2 bg-slate-50/40 rounded-r-2xl border border-slate-200/50 shadow-inner relative">
+                      <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative">
                         {revActs.map((tx, i) => {
                           const left = pct(cum);
                           const w = pct(tx.amount);
@@ -331,24 +334,28 @@ export default function PenetrativeBarChart({
 
                           const childRowKey = `act-${tx.txId}`;
                           const isChildHovered = hoveredRowKey === childRowKey;
+                          const isParentLast = i === revActs.length - 1;
 
                           return (
                             <div key={tx.txId} className="space-y-1 relative">
-                              <ExpandConnector isLast={i === revActs.length - 1} color="#cbd5e1" />
-                              
                               <div
                                 className={`flex items-center min-h-[38px] gap-4 p-0.5 rounded-lg transition-all duration-300 ${isChildHovered ? 'bg-white shadow-sm border border-slate-100' : ''}`}
                                 onMouseEnter={() => setHoveredRowKey(childRowKey)}
                                 onMouseLeave={() => { setHoveredRowKey(null); setTooltipData(null); }}
                               >
-                                <RowLabel
-                                  title={tx.desc}
-                                  actual={tx.amount}
-                                  showBudget={false}
-                                  hasChildren={linkedColls.length > 0}
-                                  isExpanded={expanded.has(`act-child-${tx.txId}`)}
-                                  onClickToggle={() => toggle(`act-child-${tx.txId}`)}
-                                />
+                                <div className="w-72 flex-shrink-0 relative">
+                                  <ExpandConnector isLast={isParentLast} color="#cbd5e1" left={16} />
+                                  <RowLabel
+                                    title={tx.desc}
+                                    actual={tx.amount}
+                                    showBudget={false}
+                                    hasChildren={linkedColls.length > 0}
+                                    isExpanded={expanded.has(`act-child-${tx.txId}`)}
+                                    onClickToggle={() => toggle(`act-child-${tx.txId}`)}
+                                    className="w-full"
+                                    plClass="pl-6"
+                                  />
+                                </div>
 
                                 <div 
                                   className="flex-1 relative h-7 cursor-pointer"
@@ -375,7 +382,7 @@ export default function PenetrativeBarChart({
 
                               {/* Level 3: Individual Collections */}
                               {expanded.has(`act-child-${tx.txId}`) && (
-                                <div className="ml-4 pl-6 py-1.5 space-y-1 bg-white border border-slate-200/60 shadow-sm rounded-xl p-2 relative">
+                                <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative">
                                   {linkedColls.map((rc, ci) => {
                                     const actAmt = rc.amount / cRate;
                                     const leftPos = left; 
@@ -386,15 +393,18 @@ export default function PenetrativeBarChart({
 
                                     return (
                                       <div key={rc.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all">
-                                        <ExpandConnector isLast={ci === linkedColls.length - 1} color="#a7f3d0" />
-                                        
-                                        <div 
-                                          className={`w-[166px] flex-shrink-0 flex items-center justify-between text-[10px] pr-2 text-slate-500 ${isGrandHovered ? 'text-slate-800' : ''}`}
-                                          onMouseEnter={() => setHoveredRowKey(grandChildRowKey)}
-                                          onMouseLeave={() => setHoveredRowKey(null)}
-                                        >
-                                          <span className="font-mono truncate">{rc.date.slice(5)} {rc.desc}</span>
-                                          <span className="text-emerald-600 font-mono font-black">{rc.amount.toFixed(0)}万</span>
+                                        <div className="w-72 flex-shrink-0 relative">
+                                          {!isParentLast && (
+                                            <div className="absolute top-0 bottom-0 w-[1px] bg-slate-300" style={{ left: '16px' }} />
+                                          )}
+                                          <ExpandConnector isLast={ci === linkedColls.length - 1} color="#a7f3d0" left={32} />
+                                          <RowLabel
+                                            title={`${rc.date.slice(5)} ${rc.desc}`}
+                                            actual={rc.amount}
+                                            showBudget={false}
+                                            className="w-full text-slate-500"
+                                            plClass="pl-12"
+                                          />
                                         </div>
 
                                         <div 
@@ -466,6 +476,8 @@ export default function PenetrativeBarChart({
                         isExpanded={expanded.has(rowKey)}
                         onClickToggle={() => toggle(rowKey)}
                         colorIndicator={COLORS.cool[key]}
+                        className="w-72"
+                        plClass="pl-2"
                       />
 
                       <div 
@@ -503,7 +515,7 @@ export default function PenetrativeBarChart({
                       const anchors = supAnchors(key);
 
                       return (
-                        <div className="ml-6 pl-6 py-2 space-y-2 bg-slate-50/40 rounded-r-2xl border border-slate-200/50 shadow-inner relative">
+                        <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative">
                           {sorted.map((sup, si) => {
                             const sAct = supActMap[sup.id] || 0;
                             const sCash = supCashMap[sup.id] || 0;
@@ -512,6 +524,7 @@ export default function PenetrativeBarChart({
                             const sOver = sAct > sup.budgetAmount;
                             const childRowKey = `${rowKey}-${sup.id}`;
                             const isChildHovered = hoveredRowKey === childRowKey;
+                            const isParentLast = si === sorted.length - 1;
 
                             const sColorClass = sOver 
                               ? 'bg-rose-400 shadow-rose-400/10'
@@ -519,21 +532,24 @@ export default function PenetrativeBarChart({
 
                             return (
                               <div key={sup.id} className="space-y-1 relative">
-                                <ExpandConnector isLast={si === sorted.length - 1} color="#cbd5e1" />
-                                
                                 <div
                                   className={`flex items-center min-h-[38px] gap-4 p-0.5 rounded-lg transition-all duration-300 ${isChildHovered ? 'bg-white shadow-sm border border-slate-100' : ''}`}
                                   onMouseEnter={() => setHoveredRowKey(childRowKey)}
                                   onMouseLeave={() => { setHoveredRowKey(null); setTooltipData(null); }}
                                 >
-                                  <RowLabel
-                                    title={sup.name}
-                                    actual={sAct}
-                                    budget={sup.budgetAmount}
-                                    hasChildren={true}
-                                    isExpanded={expanded.has(`pay-${sup.id}`)}
-                                    onClickToggle={() => toggle(`pay-${sup.id}`)}
-                                  />
+                                  <div className="w-72 flex-shrink-0 relative">
+                                    <ExpandConnector isLast={isParentLast} color="#cbd5e1" left={16} />
+                                    <RowLabel
+                                      title={sup.name}
+                                      actual={sAct}
+                                      budget={sup.budgetAmount}
+                                      hasChildren={true}
+                                      isExpanded={expanded.has(`pay-${sup.id}`)}
+                                      onClickToggle={() => toggle(`pay-${sup.id}`)}
+                                      className="w-full"
+                                      plClass="pl-6"
+                                    />
+                                  </div>
 
                                   <div 
                                     className="flex-1 relative h-7 cursor-pointer"
@@ -565,7 +581,7 @@ export default function PenetrativeBarChart({
                                   const payments = supCashTxs[sup.id] || [];
                                   let cumPay = 0;
                                   return (
-                                    <div className="ml-4 pl-6 py-1.5 space-y-1 bg-white border border-slate-200/60 shadow-sm rounded-xl p-2 relative">
+                                    <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative">
                                       {payments.map((pay, pi) => {
                                         const payLeft = sAnchor + pct(cumPay);
                                         cumPay += pay.amount;
@@ -578,15 +594,18 @@ export default function PenetrativeBarChart({
 
                                         return (
                                           <div key={pay.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all">
-                                            <ExpandConnector isLast={pi === payments.length - 1} color="#cbd5e1" />
-                                            
-                                            <div 
-                                              className={`w-[166px] flex-shrink-0 flex items-center justify-between text-[10px] pr-2 text-slate-500 ${isGrandHovered ? 'text-slate-800' : ''}`}
-                                              onMouseEnter={() => setHoveredRowKey(grandChildRowKey)}
-                                              onMouseLeave={() => setHoveredRowKey(null)}
-                                            >
-                                              <span className="font-mono truncate">{pay.date.slice(5)} {pay.desc}</span>
-                                              <span className="text-slate-800 font-mono font-black">{pay.amount.toFixed(0)}万</span>
+                                            <div className="w-72 flex-shrink-0 relative">
+                                              {!isParentLast && (
+                                                <div className="absolute top-0 bottom-0 w-[1px] bg-slate-300" style={{ left: '16px' }} />
+                                              )}
+                                              <ExpandConnector isLast={pi === payments.length - 1} color="#cbd5e1" left={32} />
+                                              <RowLabel
+                                                title={`${pay.date.slice(5)} ${pay.desc}`}
+                                                actual={pay.amount}
+                                                showBudget={false}
+                                                className="w-full text-slate-500"
+                                                plClass="pl-12"
+                                              />
                                             </div>
 
                                             <div 
@@ -650,6 +669,8 @@ export default function PenetrativeBarChart({
                     budget={proBudget}
                     isBold={true}
                     colorIndicator={isLoss ? COLORS.warm.loss : COLORS.cool.pro}
+                    className="w-72"
+                    plClass="pl-2"
                   />
 
                   <div 
