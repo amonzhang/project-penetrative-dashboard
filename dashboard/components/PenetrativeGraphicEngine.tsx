@@ -6,14 +6,16 @@ export function BulletTrack({
   left,
   width,
   className = '',
+  roundedClass = 'rounded-full',
 }: {
   left: number;
   width: number;
   className?: string;
+  roundedClass?: string;
 }) {
   return (
     <div
-      className={`absolute inset-y-1 rounded-full bg-slate-100 border border-slate-200/60 shadow-inner ${className}`}
+      className={`absolute inset-y-1 bg-slate-100 border border-slate-200/60 shadow-inner ${roundedClass} ${className}`}
       style={{
         left: `${left}%`,
         width: `${width}%`,
@@ -29,12 +31,14 @@ export function ActualBar({
   budgetWidth,
   colorClass = 'bg-blue-500 shadow-blue-500/10',
   overrunColorClass = 'bg-rose-500 shadow-rose-500/10',
+  roundedClass = 'rounded-full',
 }: {
   left: number;
   width: number;
   budgetWidth: number;
   colorClass?: string;
   overrunColorClass?: string;
+  roundedClass?: string;
 }) {
   const isOverrun = width > budgetWidth;
   const normalWidth = isOverrun ? budgetWidth : width;
@@ -45,7 +49,7 @@ export function ActualBar({
       {/* 正常范围内实际值 */}
       {normalWidth > 0 && (
         <div
-          className={`absolute inset-y-1.5 rounded-full shadow-sm transition-all duration-500 ${colorClass}`}
+          className={`absolute inset-y-1.5 shadow-sm transition-all duration-500 ${roundedClass} ${colorClass}`}
           style={{
             left: `${left}%`,
             width: `${normalWidth}%`,
@@ -55,7 +59,7 @@ export function ActualBar({
       {/* 超出预算的实际值 */}
       {overrunWidth > 0 && (
         <div
-          className={`absolute inset-y-1.5 rounded-full shadow-sm transition-all duration-500 ${overrunColorClass} animate-pulse-glow`}
+          className={`absolute inset-y-1.5 shadow-sm transition-all duration-500 ${roundedClass} ${overrunColorClass} animate-pulse-glow`}
           style={{
             left: `${left + budgetWidth}%`,
             width: `${overrunWidth}%`,
@@ -71,14 +75,16 @@ export function CashFlowBar({
   left,
   width,
   className = '',
+  roundedClass = 'rounded-full',
 }: {
   left: number;
   width: number;
   className?: string;
+  roundedClass?: string;
 }) {
   return (
     <div
-      className={`absolute inset-y-2.5 rounded-full bg-emerald-500/70 border border-emerald-400/40 shadow-sm transition-all duration-500 ${className}`}
+      className={`absolute inset-y-2.5 bg-emerald-500/70 border border-emerald-400/40 shadow-sm transition-all duration-500 ${roundedClass} ${className}`}
       style={{
         left: `${left}%`,
         width: `${width}%`,
@@ -86,7 +92,7 @@ export function CashFlowBar({
     >
       {/* 滚动的斜条纹背景突出流动感 */}
       <div
-        className="absolute inset-0 pointer-events-none rounded-full opacity-35"
+        className={`absolute inset-0 pointer-events-none opacity-35 ${roundedClass}`}
         style={{
           backgroundImage: `repeating-linear-gradient(
             45deg,

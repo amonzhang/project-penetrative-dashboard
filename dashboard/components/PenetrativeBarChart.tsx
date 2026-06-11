@@ -244,7 +244,7 @@ export default function PenetrativeBarChart({
           </div>
         </div>
 
-        {/* Unified Ruler Scale Axis (aligned exactly with start of progress bars) */}
+        {/* Unified Ruler Scale Axis */}
         <div className="px-5 pt-4 pb-2 border-b border-slate-100 bg-slate-50/[0.1]">
           <div className="relative h-6" style={{ marginLeft: '304px' }}>
             {RULER_POINTS.map((pt, i) => (
@@ -261,10 +261,21 @@ export default function PenetrativeBarChart({
         </div>
 
         {/* Main Display Area */}
-        <div className="px-5 py-5 space-y-4">
+        <div className="px-5 py-5 space-y-4 relative z-0">
+
+          {/* ── Level 1 Global Revenue Confirmed Wrap Overlay ── */}
+          <div 
+            className="absolute top-0 bottom-0 pointer-events-none z-20" 
+            style={{ left: '304px', right: '128px' }}
+          >
+            <div 
+              className="absolute top-2 bottom-2 bg-blue-500/[0.015] border-l-2 border-r-2 border-dashed border-blue-400/25"
+              style={{ left: '0%', width: `${pct(totalRevenue)}%` }}
+            />
+          </div>
 
           {/* ── SECTION 1: 收入与收款 ── */}
-          <div>
+          <div className="relative z-10">
             <div className="text-[10px] font-bold text-slate-400 mb-2.5 uppercase tracking-widest">业主视角（收入与回款）</div>
             
             {(() => {
@@ -323,7 +334,18 @@ export default function PenetrativeBarChart({
                   {expanded.has(rowKey) && (() => {
                     let cum = 0;
                     return (
-                      <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative">
+                      <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative z-0">
+                        {/* Parent actual value wrap overlay */}
+                        <div 
+                          className="absolute top-0 bottom-0 pointer-events-none z-10" 
+                          style={{ left: '304px', right: '128px' }}
+                        >
+                          <div 
+                            className="absolute top-1 bottom-1 border-l border-r border-dashed border-blue-400/20"
+                            style={{ left: '0%', width: `${pct(totalRevenue)}%` }}
+                          />
+                        </div>
+
                         {revActs.map((tx, i) => {
                           const left = pct(cum);
                           const w = pct(tx.amount);
@@ -337,7 +359,7 @@ export default function PenetrativeBarChart({
                           const isParentLast = i === revActs.length - 1;
 
                           return (
-                            <div key={tx.txId} className="space-y-1 relative">
+                            <div key={tx.txId} className="space-y-1 relative z-20">
                               <div
                                 className={`flex items-center min-h-[38px] gap-4 p-0.5 rounded-lg transition-all duration-300 ${isChildHovered ? 'bg-white shadow-sm border border-slate-100' : ''}`}
                                 onMouseEnter={() => setHoveredRowKey(childRowKey)}
@@ -364,14 +386,15 @@ export default function PenetrativeBarChart({
                                     '单笔确权回款率', tx.amount > 0 ? `${(linkedCashAmt/tx.amount*100).toFixed(1)}%` : '--'
                                   )}
                                 >
-                                  <BulletTrack left={left} width={w} />
+                                  <BulletTrack left={left} width={w} roundedClass="rounded-sm" />
                                   <ActualBar
                                     left={left}
                                     width={w}
                                     budgetWidth={w}
                                     colorClass="bg-blue-400 shadow-blue-400/10"
+                                    roundedClass="rounded-sm"
                                   />
-                                  <CashFlowBar left={left} width={pct(linkedCashAmt)} />
+                                  <CashFlowBar left={left} width={pct(linkedCashAmt)} roundedClass="rounded-sm" />
                                   <BudgetMarker position={left + w} />
                                 </div>
 
@@ -382,7 +405,18 @@ export default function PenetrativeBarChart({
 
                               {/* Level 3: Individual Collections */}
                               {expanded.has(`act-child-${tx.txId}`) && (
-                                <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative">
+                                <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative z-0">
+                                  {/* Sub-parent actual confirmation wrap overlay */}
+                                  <div 
+                                    className="absolute top-0 bottom-0 pointer-events-none z-10" 
+                                    style={{ left: '304px', right: '128px' }}
+                                  >
+                                    <div 
+                                      className="absolute top-0.5 bottom-0.5 border-l border-r border-dotted border-blue-400/15"
+                                      style={{ left: `${left}%`, width: `${w}%` }}
+                                    />
+                                  </div>
+
                                   {linkedColls.map((rc, ci) => {
                                     const actAmt = rc.amount / cRate;
                                     const leftPos = left; 
@@ -392,7 +426,7 @@ export default function PenetrativeBarChart({
                                     const isGrandHovered = hoveredRowKey === grandChildRowKey;
 
                                     return (
-                                      <div key={rc.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all">
+                                      <div key={rc.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all z-20">
                                         <div className="w-72 flex-shrink-0 relative">
                                           {!isParentLast && (
                                             <div className="absolute top-0 bottom-0 w-[1px] bg-slate-300" style={{ left: '16px' }} />
@@ -416,8 +450,8 @@ export default function PenetrativeBarChart({
                                           onMouseEnter={() => setHoveredRowKey(grandChildRowKey)}
                                           onMouseLeave={() => { setHoveredRowKey(null); setTooltipData(null); }}
                                         >
-                                          <BulletTrack left={leftPos} width={cW} className="opacity-40" />
-                                          <CashFlowBar left={leftPos} width={pct(rc.amount)} className="opacity-90" />
+                                          <BulletTrack left={leftPos} width={cW} className="opacity-40" roundedClass="rounded-none" />
+                                          <CashFlowBar left={leftPos} width={pct(rc.amount)} className="opacity-90" roundedClass="rounded-none" />
                                         </div>
 
                                         <div className="w-28 flex-shrink-0" />
@@ -440,7 +474,7 @@ export default function PenetrativeBarChart({
           <SectionDivider />
 
           {/* ── SECTION 2: 内部经营成本 ── */}
-          <div>
+          <div className="relative z-10">
             <div className="text-[10px] font-bold text-slate-400 mb-2.5 uppercase tracking-widest">内部经营（成本与付款）</div>
             
             <div className="space-y-3">
@@ -448,7 +482,6 @@ export default function PenetrativeBarChart({
                 const val = currentData.act[key];
                 const cash = currentData.cash[key];
                 const budget = BUDGET_STRUCTURE[key];
-                const isOver = val > budget;
                 const anchor = ANCHORS[key];
                 const catPct = (budget / TOTAL_REVENUE_BUDGET) * 100;
 
@@ -515,7 +548,18 @@ export default function PenetrativeBarChart({
                       const anchors = supAnchors(key);
 
                       return (
-                        <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative">
+                        <div className="py-2 space-y-2 bg-slate-50/20 rounded-xl relative z-0">
+                          {/* Parent actual value wrap overlay */}
+                          <div 
+                            className="absolute top-0 bottom-0 pointer-events-none z-10" 
+                            style={{ left: '304px', right: '128px' }}
+                          >
+                            <div 
+                              className="absolute top-1 bottom-1 border-l border-r border-dashed border-slate-300"
+                              style={{ left: `${anchor}%`, width: `${pct(val)}%` }}
+                            />
+                          </div>
+
                           {sorted.map((sup, si) => {
                             const sAct = supActMap[sup.id] || 0;
                             const sCash = supCashMap[sup.id] || 0;
@@ -531,7 +575,7 @@ export default function PenetrativeBarChart({
                               : key === 'mat' ? 'bg-sky-400 shadow-sky-400/10' : 'bg-indigo-400 shadow-indigo-400/10';
 
                             return (
-                              <div key={sup.id} className="space-y-1 relative">
+                              <div key={sup.id} className="space-y-1 relative z-20">
                                 <div
                                   className={`flex items-center min-h-[38px] gap-4 p-0.5 rounded-lg transition-all duration-300 ${isChildHovered ? 'bg-white shadow-sm border border-slate-100' : ''}`}
                                   onMouseEnter={() => setHoveredRowKey(childRowKey)}
@@ -558,15 +602,16 @@ export default function PenetrativeBarChart({
                                       '采购预算使用率', `${(sAct/sup.budgetAmount*100).toFixed(1)}%`
                                     )}
                                   >
-                                    <BulletTrack left={sAnchor} width={sBudPct} />
+                                    <BulletTrack left={sAnchor} width={sBudPct} roundedClass="rounded-sm" />
                                     <ActualBar
                                       left={sAnchor}
                                       width={pct(sAct)}
                                       budgetWidth={sBudPct}
                                       colorClass={sColorClass}
+                                      roundedClass="rounded-sm"
                                     />
                                     {sCash > 0 && (
-                                      <CashFlowBar left={sAnchor} width={pct(sCash)} />
+                                      <CashFlowBar left={sAnchor} width={pct(sCash)} roundedClass="rounded-sm" />
                                     )}
                                     <BudgetMarker position={sAnchor + sBudPct} />
                                   </div>
@@ -581,7 +626,18 @@ export default function PenetrativeBarChart({
                                   const payments = supCashTxs[sup.id] || [];
                                   let cumPay = 0;
                                   return (
-                                    <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative">
+                                    <div className="py-1.5 space-y-1 bg-white border border-slate-100 rounded-xl p-2 relative z-0">
+                                      {/* Sub-parent actual value wrap overlay */}
+                                      <div 
+                                        className="absolute top-0 bottom-0 pointer-events-none z-10" 
+                                        style={{ left: '304px', right: '128px' }}
+                                      >
+                                        <div 
+                                          className="absolute top-0.5 bottom-0.5 border-l border-r border-dotted border-slate-300/40"
+                                          style={{ left: `${sAnchor}%`, width: `${pct(sAct)}%` }}
+                                        />
+                                      </div>
+
                                       {payments.map((pay, pi) => {
                                         const payLeft = sAnchor + pct(cumPay);
                                         cumPay += pay.amount;
@@ -593,7 +649,7 @@ export default function PenetrativeBarChart({
                                         const isGrandHovered = hoveredRowKey === grandChildRowKey;
 
                                         return (
-                                          <div key={pay.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all">
+                                          <div key={pay.txId} className="relative flex items-center min-h-[30px] gap-4 p-0.5 rounded transition-all z-20">
                                             <div className="w-72 flex-shrink-0 relative">
                                               {!isParentLast && (
                                                 <div className="absolute top-0 bottom-0 w-[1px] bg-slate-300" style={{ left: '16px' }} />
@@ -617,8 +673,8 @@ export default function PenetrativeBarChart({
                                               onMouseEnter={() => setHoveredRowKey(grandChildRowKey)}
                                               onMouseLeave={() => { setHoveredRowKey(null); setTooltipData(null); }}
                                             >
-                                              <BulletTrack left={payLeft} width={actW} className="opacity-40" />
-                                              <CashFlowBar left={payLeft} width={pct(pay.amount)} className="opacity-90" />
+                                              <BulletTrack left={payLeft} width={actW} className="opacity-40" roundedClass="rounded-none" />
+                                              <CashFlowBar left={payLeft} width={pct(pay.amount)} className="opacity-90" roundedClass="rounded-none" />
                                             </div>
 
                                             <div className="w-28 flex-shrink-0" />
@@ -646,7 +702,7 @@ export default function PenetrativeBarChart({
           <SectionDivider />
 
           {/* ── SECTION 3: 经营结果 ── */}
-          <div>
+          <div className="relative z-10">
             <div className="text-[10px] font-bold text-slate-400 mb-2.5 uppercase tracking-widest">经营结果（项目收益状况）</div>
             
             {(() => {
